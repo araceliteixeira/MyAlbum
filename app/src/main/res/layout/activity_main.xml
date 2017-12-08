@@ -7,12 +7,45 @@
     tools:context="com.araceliteixeira.myalbum.MainActivity">
 
     <TextView
+        android:id="@+id/main_label"
+        android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="Type the Photographer Name"
+        app:layout_constraintLeft_toLeftOf="@id/main_camera_button"
+        app:layout_constraintRight_toRightOf="@id/main_camera_button"
+        app:layout_constraintBottom_toTopOf="@id/main_name"
+         />
+
+    <EditText
+        android:id="@+id/main_name"
+        android:hint="photographer"
+        android:textAlignment="center"
+        android:maxLines="1"
+        android:inputType="text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/main_camera_button"
+        app:layout_constraintRight_toRightOf="@id/main_camera_button"
+        app:layout_constraintBottom_toTopOf="@id/main_camera_button"/>
+
+    <Button
+        android:id="@+id/main_camera_button"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/ic_camera_alt_black_48dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
+    <Button
+        android:id="@+id/main_goto_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Go to Gallery"
+        app:layout_constraintLeft_toLeftOf="@id/main_camera_button"
+        app:layout_constraintRight_toRightOf="@id/main_camera_button"
+        app:layout_constraintTop_toBottomOf="@id/main_camera_button"/>
 </android.support.constraint.ConstraintLayout>
