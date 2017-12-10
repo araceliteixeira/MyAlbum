@@ -1,7 +1,7 @@
 package com.araceliteixeira.myalbum;
 
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -31,13 +31,21 @@ public class AlbumAdapter extends ArrayAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.activity_gridview, null);
+    public View getView(int position, View view, ViewGroup parent) {
+        if (view == null) {
+            view = ViewGroup.inflate(parent.getContext(), R.layout.activity_gridview, null);
+        }
+
         TextView textView = (TextView) view.findViewById(R.id.grid_view_label);
         ImageView imageView = (ImageView) view.findViewById(R.id.grid_view_image);
         textView.setText(list.get(position).getLabel());
         imageView.setImageBitmap(list.get(position).getImage());
+
+        if (list.get(position).isSelected()) {
+            imageView.setBackgroundColor(Color.LTGRAY);
+        } else {
+            imageView.setBackgroundColor(Color.TRANSPARENT);
+        }
         return view;
     }
 }

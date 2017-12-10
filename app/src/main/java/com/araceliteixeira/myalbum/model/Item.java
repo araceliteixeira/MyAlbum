@@ -10,13 +10,16 @@ public class Item {
     private long id;
     private Bitmap image;
     private String label;
+    private String photographer;
+    private boolean isSelected = false;
 
     public Item() {
     }
 
-    public Item(Bitmap image, String label) {
+    public Item(Bitmap image, String label, String photographer) {
         this.image = image;
         this.label = label;
+        this.photographer = photographer;
     }
 
     public long getId() {
@@ -41,5 +44,25 @@ public class Item {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getPhotographer() {
+        return photographer;
+    }
+
+    public void setPhotographer(String photographer) {
+        this.photographer = photographer;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public void toggleSelected(){
+        isSelected = !isSelected;
     }
 }

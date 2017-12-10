@@ -8,8 +8,8 @@
     <ImageView
         android:id="@+id/grid_view_image"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:scaleType="fitXY"
+        android:layout_height="150dp"
+        android:scaleType="centerInside"
         android:layout_gravity="center_horizontal"
         android:src="@drawable/ic_camera_alt_black_48dp" />
     <TextView

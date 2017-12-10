@@ -21,12 +21,12 @@ import java.util.List;
 public class ItemDAO extends SQLiteOpenHelper {
 
     public ItemDAO(Context context) {
-        super(context, "c0712150test2", null, 1);
+        super(context, "c0712150test2", null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sql = "CREATE TABLE Items (id INTEGER PRIMARY KEY, image BLOB NOT NULL, label TEXT NOT NULL)";
+        String sql = "CREATE TABLE Items (id INTEGER PRIMARY KEY, image BLOB NOT NULL, label TEXT NOT NULL, photographer TEXT)";
         db.execSQL(sql);
     }
 
@@ -44,11 +44,12 @@ public class ItemDAO extends SQLiteOpenHelper {
         item.getImage().compress(Bitmap.CompressFormat.JPEG, 100, bos);
         byte[] bytes = bos.toByteArray();
 
-        ContentValues userData = new ContentValues();
-        userData.put("image", bytes);
-        userData.put("label", item.getLabel());
+        ContentValues itemData = new ContentValues();
+        itemData.put("image", bytes);
+        itemData.put("label", item.getLabel());
+        itemData.put("photographer", item.getPhotographer());
 
-        db.insert("Items", null, userData);
+        db.insert("Items", null, itemData);
     }
 
     public List<Item> dbSearch() {
@@ -57,7 +58,7 @@ public class ItemDAO extends SQLiteOpenHelper {
         String sql = "SELECT * FROM Items;";
 
         Cursor c = db.rawQuery(sql, null);
-        List<Item> users = new ArrayList<>();
+        List<Item> items = new ArrayList<>();
 
         while (c.moveToNext()) {
             Item item = new Item();
@@ -65,9 +66,35 @@ public class ItemDAO extends SQLiteOpenHelper {
             byte[] bytes = c.getBlob(c.getColumnIndex("image"));
             item.setImage(BitmapFactory.decodeByteArray(bytes, 0 , bytes.length));
             item.setLabel(c.getString(c.getColumnIndex("label")));
-            users.add(item);
+            item.setPhotographer(c.getString(c.getColumnIndex("photographer")));
+            items.add(item);
         }
         c.close();
-        return users;
+        return items;
+    }
+
+    public List<Item> dbSearchByPhotographer(String name) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT * FROM Items WHERE photographer = '" + name + "';";
+        Cursor c = db.rawQuery(sql, null);
+        List<Item> items = new ArrayList<>();
+
+        while (c.moveToNext()) {
+            Item item = new Item();
+            item.setId(c.getLong(c.getColumnIndex("id")));
+            byte[] bytes = c.getBlob(c.getColumnIndex("image"));
+            item.setImage(BitmapFactory.decodeByteArray(bytes, 0 , bytes.length));
+            item.setLabel(c.getString(c.getColumnIndex("label")));
+            item.setPhotographer(c.getString(c.getColumnIndex("photographer")));
+            items.add(item);
+        }
+        c.close();
+        return items;
+    }
+
+    public void dbDelete() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("Items", "", new String[]{});
     }
 }

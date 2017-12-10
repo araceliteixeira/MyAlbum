@@ -1,17 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.araceliteixeira.myalbum.MainActivity">
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/album_photographer"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="Photographer:"/>
 
     <GridView
         android:id="@+id/album_grid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:numColumns="3">
-
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:numColumns="2">
     </GridView>
-</android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/album_back_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/album_send_sms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Send SMS" />
+    </LinearLayout>
+</LinearLayout>
