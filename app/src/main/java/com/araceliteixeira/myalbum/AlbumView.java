@@ -3,8 +3,7 @@ package com.araceliteixeira.myalbum;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -66,7 +65,7 @@ public class AlbumView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = "The photo session was fantastic, please look ";
-                ArrayList<Uri> images = new ArrayList<>();
+                ArrayList<Uri> uris = new ArrayList<>();
                 boolean sendSms = false;
                 for (Item i: items) {
                     if (i.isSelected()) {
@@ -78,8 +77,10 @@ public class AlbumView extends AppCompatActivity {
                             i.getImage().compress(Bitmap.CompressFormat.JPEG, 100, fOut);
                             fOut.flush();
                             fOut.close();
-                            //file.setReadable(true, false);
-                            images.add(Uri.fromFile(file));
+                            Uri photoURI = FileProvider.getUriForFile(AlbumView.this,
+                                    AlbumView.this.getApplicationContext().getPackageName() +
+                                            ".com.araceliteixeira.myalbum.provider", file);
+                            uris.add(photoURI);
                             sendSms = true;
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -89,7 +90,7 @@ public class AlbumView extends AppCompatActivity {
                     }
                 }
                 if (sendSms) {
-                    message += (images.size() > 1 ? "they are incredible." : "it is incredible.");
+                    message += (uris.size() > 1 ? "they are incredible." : "it is incredible.");
 
                     Intent smsIntent = new Intent(Intent.ACTION_SEND);
                     smsIntent.setType("text/plain");
@@ -98,7 +99,8 @@ public class AlbumView extends AppCompatActivity {
 
                     Intent mmsIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
                     mmsIntent.setType("image/jpeg");
-                    mmsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, images);
+                    mmsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                    mmsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(mmsIntent);
                 } else {
                     Toast.makeText(AlbumView.this, "Select at least one photo",

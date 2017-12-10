@@ -4,15 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Environment;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.araceliteixeira.myalbum.DAO.ItemDAO;
@@ -20,6 +22,7 @@ import com.araceliteixeira.myalbum.model.Item;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -36,10 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
         photographerName = (EditText) findViewById(R.id.main_name);
 
-        //ItemDAO dao = new ItemDAO(this);
-        //dao.dbDelete();
-        //dao.close();
-
         Button buttonCamera = (Button) findViewById(R.id.main_camera_button);
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +51,13 @@ public class MainActivity extends AppCompatActivity {
                     if (intentCamera.resolveActivity(getPackageManager()) != null) {
                         dirPhoto = getExternalFilesDir(null) + "/" + System.currentTimeMillis() + ".jpg";
                         File filePhoto = new File(dirPhoto);
-                        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(filePhoto));
+
+                        intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                                MainActivity.this.getApplicationContext().getPackageName() +
+                                        ".com.araceliteixeira.myalbum.provider", filePhoto);
+                        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
                         startActivityForResult(intentCamera, CAMERA_CODE);
                     }
                 }
@@ -82,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(dirPhoto);
             if (bitmap != null) {
                 String filename = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".jpg";
-                Item item = new Item(bitmap, filename, photographerName.getText().toString());
+                Item item = new Item(getScaledBitmap(), filename, photographerName.getText().toString());
                 ItemDAO dao = new ItemDAO(this);
                 dao.dbInsert(item);
                 dao.close();
@@ -90,5 +95,67 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Null bitmap at " + dirPhoto);
             }
         }
+    }
+
+    private Bitmap getScaledBitmap() {
+        // Get the dimensions of the View
+        int targetW = 300;
+        int targetH = 300;
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(dirPhoto, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap img = BitmapFactory.decodeFile(dirPhoto, bmOptions);
+        Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                MainActivity.this.getApplicationContext().getPackageName() +
+                        ".com.araceliteixeira.myalbum.provider", new File(dirPhoto));
+        try {
+            img = rotateImageIfRequired(img, photoURI);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return img;
+    }
+
+    private Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
+        InputStream input = MainActivity.this.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
+
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 }

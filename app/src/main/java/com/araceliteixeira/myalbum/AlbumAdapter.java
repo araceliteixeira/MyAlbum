@@ -43,8 +43,10 @@ public class AlbumAdapter extends ArrayAdapter {
 
         if (list.get(position).isSelected()) {
             imageView.setBackgroundColor(Color.LTGRAY);
+            textView.setBackgroundColor(Color.LTGRAY);
         } else {
             imageView.setBackgroundColor(Color.TRANSPARENT);
+            textView.setBackgroundColor(Color.TRANSPARENT);
         }
         return view;
     }
